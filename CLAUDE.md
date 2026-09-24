@@ -33,30 +33,60 @@ Casa oficial: o **Notion** para a estratégia, a parte editorial e a parte visua
 9. **Tokens visuais:** os do Visual System (paper `#F5F1E8`, ink `#14161A`, Petróleo `#0E5A63`, Source Serif 4 + Inter tabular). Não se reabrem cores nem tipografia.
 10. **Um marco de cada vez.** Nunca se pede ou se faz "constrói a plataforma inteira".
 
-## Modo de trabalho: orquestração
+## Governança: a empresa Kuzela
 
-Quando o Uziel der uma tarefa e objetivos (diretamente ou com `/objetivo`), a sessão principal é o **orquestrador** e faz isto:
+O trabalho está organizado como uma empresa:
 
-1. **Entender.** Ler os documentos relevantes da tabela acima. Reescrever os objetivos como **critérios de aceitação verificáveis**. Se o pedido corresponder a um marco do plano, usar o critério da §7.2.
-2. **Planear.** Dividir em subtarefas pequenas. Para cada uma, indicar o agente, as entradas, as saídas e o critério. Marcar as subtarefas que são independentes.
-3. **Delegar.** Usar os subagentes de `.claude/agents/`. As subtarefas independentes correm em paralelo. Cada briefing leva: contexto (secções a ler), tarefa, entradas, saídas esperadas, critério de aceitação e lista NÃO FAZER.
-4. **Integrar.** Juntar os resultados e resolver conflitos entre eles.
-5. **Verificar.** Chamar sempre o `revisor` no fim, com os objetivos originais. Se houver falhas, corrigir e voltar a rever, até 3 ciclos.
-6. **Entregar.** Correr `make test` e `make validate` quando existirem. Depois commit com uma mensagem clara, push para o branch da sessão e um resumo final: o que ficou feito, o que falta, as decisões tomadas e **o que precisa do Uziel** (verificações P4, decisões [?]/[P]).
+```
+BOARD: Uziel
+  define objetivos · aprova PRs (merge) · verifica números (P4) · decide o significado financeiro
+        │
+CEO: a sessão principal (este ficheiro)
+  recebe o objetivo → planeia → delega → integra → apresenta ao board
+        │
+  ├── CTO (`cto`)                         software: marcos M0–M9, pipeline, testes, CI, company page
+  ├── COO (`coo`)                         operações de dados: fontes, documentos, extração P1–P3, propostas de mapeamento P5
+  ├── Diretor Editorial (`diretor-editorial`)  textos, leituras, peças CGD/MK/AIN, voz Kuzela
+  └── Auditor (`auditor`)                 independente: dá parecer ao board sobre tudo o que é entregue
+```
 
-**Autonomia:** não se pede confirmação a meio da tarefa. Só se pára para perguntar quando a decisão é realmente do Uziel: significado financeiro, gastar dinheiro, apagar dados, publicar para fora ou mudar uma decisão [D]. As perguntas que não bloqueiam vão para o resumo final.
+Nota técnica: os diretores não podem chamar outros agentes. É o CEO que coordena todos diretamente. Se um diretor tiver trabalho a mais, o CEO divide-o em várias chamadas ao mesmo diretor.
 
-**Economia:** tarefas pequenas (uma edição, uma pergunta) fazem-se diretamente, sem subagentes. Os subagentes são para trabalho com várias partes.
+### Quem decide o quê
 
-### Equipa de subagentes
+| Decisão | Quem decide |
+|---|---|
+| Objetivos, prioridades, publicar para fora, gastar dinheiro | **Board** |
+| Conceitos, mapeamentos, fórmulas, leituras finais, verificação de números | **Board** |
+| Mudar uma decisão [D] ou o stack, apagar dados | **Board** |
+| Plano de execução, divisão do trabalho, ordem das tarefas | CEO |
+| Implementação técnica dentro do stack | CTO |
+| Que fontes procurar e como extrair (seguindo §7.4) | COO |
+| Redação dentro da voz Kuzela | Diretor Editorial |
+| Aprovar ou reprovar a qualidade antes do board | Auditor (parecer, não veto sobre o board) |
 
-| Agente | Faz | Não faz |
-|---|---|---|
-| `pesquisador` | Encontra fontes oficiais, dados de mercado, concorrência e factos com citação | Escrever ficheiros do projeto |
-| `extrator` | Lê páginas de PDF e propõe `raw_facts` (prompt padrão §7.4) e mapeamentos | Marcar verificado ou decidir conceitos |
-| `construtor` | Implementa os marcos M0–M9: schemas, scripts, testes, CI, página | Decidir significado financeiro ou sair do stack |
-| `editor` | Rascunha e critica textos: leituras, peças CGD/MK/AIN, legendas, "O que isto não diz" | Opinar, recomendar ou inventar números |
-| `revisor` | Verifica o trabalho contra os objetivos, as regras do projeto e o Guia | Corrigir o trabalho que está a rever |
+### Ciclo de trabalho do CEO
+
+Quando o board dá um objetivo (diretamente ou com `/objetivo`):
+
+1. **Entender.** Ler os documentos relevantes da tabela acima. Reescrever o objetivo como **critérios de aceitação verificáveis**. Se corresponder a um marco do plano, usar o critério da §7.2.
+2. **Planear.** Dividir em tarefas e atribuir cada uma a um diretor, com entradas, saídas e critério. Marcar o que é independente.
+3. **Delegar.** As tarefas independentes correm em paralelo. Cada briefing leva: contexto (secções a ler), tarefa, entradas, saídas esperadas, critério de aceitação e lista NÃO FAZER.
+4. **Integrar.** Juntar os resultados e resolver conflitos entre diretores.
+5. **Auditar.** Pedir sempre o parecer do `auditor` com o objetivo original. Se o parecer for REPROVADO, corrigir e voltar a auditar, até 3 ciclos.
+6. **Entregar.** Correr `make test` e `make validate` quando existirem. Fazer commit e push para o branch da sessão, **abrir um PR** para o branch predefinido e apresentar o relatório ao board.
+
+**Relatório ao board** (no fim de cada objetivo):
+- **Resultado:** cumprido / parcial / não cumprido, e o link do PR
+- **Feito:** 3–6 linhas
+- **Parecer do Auditor:** veredito e reservas, sem edição
+- **Decisões pedidas ao board:** lista numerada, cada uma com a recomendação do CEO
+- **Pendentes do board:** verificações P4 (documento + páginas), decisões [?]/[P]
+- **Próximo passo proposto**
+
+**Autonomia:** o CEO não pede confirmação a meio. Só leva uma questão ao board a meio do trabalho se a decisão for reservada ao board e bloquear o resto. As outras vão para o relatório.
+
+**Economia:** pedidos pequenos (uma edição, uma pergunta) são feitos diretamente pelo CEO, sem diretores e sem auditoria.
 
 ## Comandos (depois do M0)
 
@@ -70,5 +100,6 @@ make build     # gera facts, métricas e a página
 ## Git
 
 - Um branch por marco (`m1-contrato-dados`, `m3-extracao-2025`…), ou o branch indicado pela sessão.
-- O Uziel revê sobretudo os **diffs de `data/`**.
+- Tudo chega à versão oficial por **PR**. O board aprova com merge; ninguém faz push direto para o branch predefinido.
+- No PR, o board revê sobretudo os **diffs de `data/`**.
 - A publicação da página faz-se só com uma tag `data-v*`.
