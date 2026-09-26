@@ -1,0 +1,3 @@
+# Regra 5: os PDFs não vão para o git. Só o manifesto (URL + sha256).
+*.pdf
+*.PDF
